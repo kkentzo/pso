@@ -21,23 +21,23 @@ library.
 ## USAGE
 
 
-Just include pso.h and pso.c in your code. You need to have the GNU
-Scientific Library (http://www.gnu.org/software/gsl/) and the
+Just include pso.h and pso.c in your code. You need to have the [GNU
+Scientific Library][http://www.gnu.org/software/gsl/] and the
 respective development (i.e. header) files in order to include pso.c
-in your application. In your Makefile add -lgsl and -lgslcblas to
-LDFLAGS.
+in your application. In your Makefile add `-lgsl` and `-lgslcblas` to
+your `LDFLAGS`.
 
-In order to use pso_solve(), you need :
+In order to use `pso_solve()`, you need :
 
 1. an objective function to be minimized (see defined type
-pso_obj_fun_t in pso.h),
+`pso_obj_fun_t` in pso.h),
 
-2. a pso_results_t object with a properly initialized (malloc'd) gbest
-buffer. This is where the best position discovered will be stored,
-along with the minimum error (stored in member error).
+2. a `pso_results_t` object with a properly initialized (malloc'd)
+gbest buffer. This is where the best position discovered will be
+stored, along with the minimum error (stored in member `error`).
 
-3. a pso_settings_t object with properly initialized values (use
-pso_set_default_settings() for a quick and dirty initialization)
+3. a `pso_settings_t` object with properly initialized values (use
+`pso_set_default_settings()` for a quick and dirty initialization)
 
 
 
@@ -54,31 +54,31 @@ pso_set_default_settings() for a quick and dirty initialization)
 pso provides three different strategies for determining each
 particle's neighborhood attractor:
 
-1. global topology (PSO_NHOOD_GLOBAL) where each particle is informed
+1. global topology (`PSO_NHOOD_GLOBAL`) where each particle is informed
 by every other particle in the swarm
 
-2. ring topology (PSO_NHOOD_RING) where there exists a fixed ring
+2. ring topology (`PSO_NHOOD_RING`) where there exists a fixed ring
 topology and each particle is informed by its adjacent particles
 
-3. random topology (PSO_NHOOD_RANDOM) where a random topology is used
-that is updated when the error is not improved in two successive
-iterations [3,4]. Use nhood_size in pso_settings_t to adjust the
-average number of informers for each particle. 
+3. random topology (`PSO_NHOOD_RANDOM`) where a random topology is
+used that is updated when the error is not improved in two successive
+iterations [3,4]. Use `nhood_size` in `pso_settings_t` to adjust the
+average number of informers for each particle.
 
 
 
 
 ### INERTIA WEIGHT STRATEGIES
 
-The value of the inertia weight (\omega) determines the balance
+The value of the inertia weight ($$\omega$$) determines the balance
 between global and local search. Two different strategies are
 implemented:
 
-1. Constant value (PSO_W_CONST) using \omega=0.7298 [5]
+1. Constant value (PSO_W_CONST) using $$\omega$$=0.7298 [5]
 
-2. Linearly decreasing inertia weight [6] (PSO_W_LIN_DEC). Use w_max
-and w_min in pso_settings_t to control the starting and ending point
-respectively.
+2. Linearly decreasing inertia weight [6] (PSO_W_LIN_DEC). Use `w_max`
+and `w_min` in `pso_settings_t` to control the starting and ending
+point respectively.
 
 
 
@@ -86,22 +86,22 @@ respectively.
 ## OTHER SETTINGS
 
 
-The following can be set in the pso_settings_t struct:
+The following can be set in the `pso_settings_t` struct:
 
 
 `dim` : problem dimensionality which should be equal to the size of
-the gbest buffer in pso_result_t as well as to the size of the first
+the gbest buffer in `pso_result_t` as well as to the size of the first
 argument (pointer to a position buffer) of the objective function
-(pso_obj_fun_t )
+(`pso_obj_fun_t`)
 
 `size` : the number of particles in the swarm (the function
-pso_calc_swarm_size() is also provided for the automatic calculation
+`pso_calc_swarm_size()` is also provided for the automatic calculation
 of th swarm size based on the problem dimensionality).
 
-`rng` : a pointer to a gsl_rng object (from GNU gsl). Pass NULL for
+`rng` : a pointer to a `gsl_rng` object (from GNU gsl). Pass NULL for
 automatic generation of the random number generator.
 
-`seed` : the seed to use for rng (default is time(0))
+`seed` : the seed to use for `rng` (default is time(0))
 
 `x_lo, x_hi` : boundaries for particle positions
 
@@ -119,8 +119,8 @@ values are c1 = c2 = 1.496 [5].
 
 `steps` : the maximum number of steps to run the algorithm for. 
 
-`goal` : if the objective function returns a value lower than this goal
-the search will stop
+`goal` : if the objective function returns a value lower than this
+goal the search will stop
 
 
 
@@ -131,8 +131,8 @@ the search will stop
 
 ## EXAMPLES
 
-A file [demo.c][demo] along with its Makefile are provided for your
-convenience. [demo.c][demo] provides instructions on how to setup pso in your
+A file demo.c with its Makefile are provided for your
+convenience. demo.c provides instructions on how to setup pso in your
 application.
 
 
@@ -140,7 +140,7 @@ application.
 
 
 
-## DISCLAIMER:
+## DISCLAIMER
 
 Feel free to use the code as you see fit; I accept no responsibility
 for any damage/catastrophy that might occur as a result :)
@@ -151,7 +151,7 @@ for any damage/catastrophy that might occur as a result :)
 
 
 
-== REFERENCES
+## REFERENCES
 
 
 [1] Kennedy J and Eberhart R, "Particle Swarm Optimization."
@@ -177,4 +177,3 @@ swarm optimization. In Evolutionary Programming VII
 
 
 
-[demo]:
