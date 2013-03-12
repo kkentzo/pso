@@ -22,7 +22,7 @@ library.
 
 
 Just include pso.h and pso.c in your code. You need to have the [GNU
-Scientific Library][http://www.gnu.org/software/gsl/] and the
+Scientific Library](http://www.gnu.org/software/gsl/) and the
 respective development (i.e. header) files in order to include pso.c
 in your application. In your Makefile add `-lgsl` and `-lgslcblas` to
 your `LDFLAGS`.
@@ -70,15 +70,14 @@ average number of informers for each particle.
 
 ### INERTIA WEIGHT STRATEGIES
 
-The value of the inertia weight ($$\omega$$) determines the balance
-between global and local search. Two different strategies are
-implemented:
+The value of the inertia weight (w) determines the balance between
+global and local search. Two different strategies are implemented:
 
-1. Constant value (PSO_W_CONST) using $$\omega$$=0.7298 [5]
+1. Constant value (PSO_W_CONST) using w=0.7298 [5]
 
-2. Linearly decreasing inertia weight [6] (PSO_W_LIN_DEC). Use `w_max`
-and `w_min` in `pso_settings_t` to control the starting and ending
-point respectively.
+2. Linearly decreasing inertia weight (`PSO_W_LIN_DEC`) [6]. Use
+`w_max` and `w_min` in `pso_settings_t` to control the starting and
+ending point respectively.
 
 
 
