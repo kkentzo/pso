@@ -1,4 +1,6 @@
 /* An implementation of the Particle Swarm Optimization algorithm
+
+   Copyright 2010 Kyriakos Kentzoglanakis
    
    This program is free software: you can redistribute it and/or
    modify it under the terms of the GNU General Public License version
@@ -18,7 +20,7 @@
 
 #include <time.h> // for time()
 #include <math.h> // for cos(), pow(), sqrt() etc.
-#include <float.h> // for FLT_MAX
+#include <float.h> // for DBL_MAX
 #include <string.h> // for mem*
 
 #include <gsl/gsl_rng.h>
@@ -295,7 +297,7 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
 	}
 
     // INITIALIZE SOLUTION
-    solution->error = FLT_MAX;
+    solution->error = DBL_MAX;
     
     // SWARM INITIALIZATION
     // for each particle
