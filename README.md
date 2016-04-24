@@ -11,6 +11,8 @@ function). PSO can also be used for discrete optimization problems,
 but this behaviour is not implemented in the current version of this
 library.
 
+There's also an implementation in Go which can be found
+[here](https://github.com/kkentzo/pso.go)
 
 
 
@@ -107,7 +109,7 @@ automatic generation of the random number generator.
 `clamp_pos` : if TRUE then the position of a particle that has exceeded
 a boundary is set to the value of that boundary and its velocity
 becomes 0 (along the dimension where the boundary was exceeded). If
-it's FALSE, then periodic boundary conditions are enforced. 
+it's FALSE, then periodic boundary conditions are enforced.
 
 `print_every` : if greater than zero then this value specifies how many
 steps should pass before information about the state of the search is
@@ -116,7 +118,7 @@ printed on screen
 `c1, c2` : cognitive and social coefficients respectively. The default
 values are c1 = c2 = 1.496 [5].
 
-`steps` : the maximum number of steps to run the algorithm for. 
+`steps` : the maximum number of steps to run the algorithm for.
 
 `goal` : if the objective function returns a value lower than this
 goal the search will stop
@@ -173,6 +175,3 @@ space. Evolutionary Computation, IEEE Transactions on, 6(1), 58-73.
 [6] Shi, Y., & Eberhart, R. (1998). Parameter selection in particle
 swarm optimization. In Evolutionary Programming VII
 (pp. 591-600). Springer Berlin/Heidelberg.
-
-
-
