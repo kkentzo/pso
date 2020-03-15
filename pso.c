@@ -17,17 +17,20 @@
 */
 
 
-
+#include <stdlib.h> // for rand() stuff
+#include <stdio.h> // for printf
 #include <time.h> // for time()
 #include <math.h> // for cos(), pow(), sqrt() etc.
 #include <float.h> // for DBL_MAX
 #include <string.h> // for mem*
 
-#include <gsl/gsl_rng.h>
-
 #include "pso.h"
 
+// generates a double between (0, 1)
+#define RNG_UNIFORM() (rand()/(double)RAND_MAX)
 
+// generate an int between 0 and s (exclusive)
+#define RNG_UNIFORM_INT(s) (rand()%s)
 
 
 //==============================================================
@@ -168,7 +171,7 @@ void init_comm_random(int *comm, pso_settings_t * settings) {
     // choose kappa (on average) informers for each particle
     for (k=0; k<settings->nhood_size; k++) {
       // generate a random index
-      j = gsl_rng_uniform_int(settings->rng, settings->size);
+      j = RNG_UNIFORM_INT(settings->size);
       // particle i informs particle j
       comm[i*settings->size + j] = 1;
     }
@@ -217,9 +220,6 @@ void pso_set_default_settings(pso_settings_t *settings) {
   settings->nhood_size = 5;
   settings->w_strategy = PSO_W_LIN_DEC;
 
-  settings->rng = NULL;
-  settings->seed = time(0);
-
 }
 
 
@@ -232,7 +232,6 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
 	       pso_result_t *solution, pso_settings_t *settings)
 {
 
-  int free_rng = 0; // whether to free settings->rng when finished
   // Particles
   double pos[settings->size][settings->dim]; // position matrix
   double vel[settings->size][settings->dim]; // velocity matrix
@@ -256,17 +255,8 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
   double (*calc_inertia_fun)(); // inertia weight update function
 
 
-  // CHECK RANDOM NUMBER GENERATOR
-  if (! settings->rng) {
-    // initialize random number generator
-    gsl_rng_env_setup();
-    // allocate the RNG
-    settings->rng = gsl_rng_alloc(gsl_rng_default);
-    // seed the generator
-    gsl_rng_set(settings->rng, settings->seed);
-    // remember to free the RNG
-    free_rng = 1;
-  }
+  // initialize random seed
+  srand(time(NULL));
 
   // SELECT APPROPRIATE NHOOD UPDATE FUNCTION
   switch (settings->nhood_strategy)
@@ -306,9 +296,9 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
     for (d=0; d<settings->dim; d++) {
       // generate two numbers within the specified range
       a = settings->x_lo + (settings->x_hi - settings->x_lo) * \
-        gsl_rng_uniform(settings->rng);
+          RNG_UNIFORM();
       b = settings->x_lo + (settings->x_hi - settings->x_lo) *	\
-        gsl_rng_uniform(settings->rng);
+          RNG_UNIFORM();
       // initialize position
       pos[i][d] = a;
       // best position is the same
@@ -359,8 +349,8 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
       // for each dimension
       for (d=0; d<settings->dim; d++) {
         // calculate stochastic coefficients
-        rho1 = settings->c1 * gsl_rng_uniform(settings->rng);
-        rho2 = settings->c2 * gsl_rng_uniform(settings->rng);
+        rho1 = settings->c1 * RNG_UNIFORM();
+        rho2 = settings->c2 * RNG_UNIFORM();
         // update velocity
         vel[i][d] = w * vel[i][d] +	\
           rho1 * (pos_b[i][d] - pos[i][d]) +	\
@@ -418,8 +408,4 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
       printf("Step %d (w=%.2f) :: min err=%.5e\n", step, w, solution->error);
 
   }
-
-  // free RNG??
-  if (free_rng)
-    gsl_rng_free(settings->rng);
 }

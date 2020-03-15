@@ -44,8 +44,6 @@
 #define PSO_W_CONST 0
 #define PSO_W_LIN_DEC 1
 
-
-
 // PSO SOLUTION -- Initialized by the user
 typedef struct {
 
@@ -83,9 +81,6 @@ typedef struct {
   int nhood_strategy; // neighborhood strategy (see PSO_NHOOD_*)
   int nhood_size; // neighborhood size
   int w_strategy; // inertia weight strategy (see PSO_W_*)
-
-  void *rng; // pointer to random number generator (use NULL to create a new RNG)
-  long seed; // seed for the generator
 
 } pso_settings_t;
 

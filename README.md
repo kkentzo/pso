@@ -23,11 +23,8 @@ There's also an implementation in Go which can be found
 ## USAGE
 
 
-Just include pso.h and pso.c in your code. You need to have the [GNU
-Scientific Library](http://www.gnu.org/software/gsl/) and the
-respective development (i.e. header) files in order to include pso.c
-in your application. In your Makefile add `-lgsl` and `-lgslcblas` to
-your `LDFLAGS`.
+Just include pso.h and pso.c in your code - no other dependencies are
+necessary apart from the standard C library.
 
 In order to use `pso_solve()`, you need :
 
@@ -99,11 +96,6 @@ argument (pointer to a position buffer) of the objective function
 `pso_calc_swarm_size()` is also provided for the automatic calculation
 of th swarm size based on the problem dimensionality).
 
-`rng` : a pointer to a `gsl_rng` object (from GNU gsl). Pass NULL for
-automatic generation of the random number generator.
-
-`seed` : the seed to use for `rng` (default is time(0))
-
 `x_lo, x_hi` : boundaries for particle positions
 
 `clamp_pos` : if TRUE then the position of a particle that has exceeded
@@ -132,9 +124,9 @@ goal the search will stop
 
 ## EXAMPLES
 
-A file demo.c with its Makefile are provided for your
-convenience. demo.c provides instructions on how to setup pso in your
-application.
+A file `demo.c` with its Makefile are provided for your
+convenience. `demo.c` provides instructions on how to setup pso in
+your application. Type `make` for building the demo.
 
 
 
