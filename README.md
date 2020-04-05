@@ -35,8 +35,11 @@ In order to use `pso_solve()`, you need :
 gbest buffer. This is where the best position discovered will be
 stored, along with the minimum error (stored in member `error`).
 
-3. a `pso_settings_t` object with properly initialized values (use
-`pso_set_default_settings()` for a quick and dirty initialization)
+3. a `pso_settings_t` object with properly initialized values -- use
+`pso_settings_new()` to allocate and initialize the object. Do not
+forget to free the object using `pso_settings_free()`, especially if
+you're doing multiple optimization attempts over a loop (otherwise
+memory will leak).
 
 
 
@@ -79,8 +82,6 @@ global and local search. Two different strategies are implemented:
 ending point respectively.
 
 
-
-
 ## OTHER SETTINGS
 
 
@@ -96,7 +97,10 @@ argument (pointer to a position buffer) of the objective function
 `pso_calc_swarm_size()` is also provided for the automatic calculation
 of th swarm size based on the problem dimensionality).
 
-`x_lo, x_hi` : boundaries for particle positions
+`range_lo, range_hi` : array boundaries for particle positions; these
+are arrays (`double *`) whose length is determined by `dim`. They are
+allocated and filled with their supplied values automatically by
+`pso_settings_new`.
 
 `clamp_pos` : if TRUE then the position of a particle that has exceeded
 a boundary is set to the value of that boundary and its velocity
