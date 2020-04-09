@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     // initialize GBEST solution
     pso_result_t solution;
     // allocate memory for the best position buffer
-    solution.gbest = malloc(settings->dim * sizeof(double));
+    solution.gbest = (double *)malloc(settings->dim * sizeof(double));
 
     // run optimization algorithm
     pso_solve(obj_fun, NULL, &solution, settings);

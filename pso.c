@@ -32,6 +32,15 @@
 // generate an int between 0 and s (exclusive)
 #define RNG_UNIFORM_INT(s) (rand()%s)
 
+// function type for the different inform functions
+typedef void (*inform_fun_t)(int *comm, double *pos_nb,
+                             double *pos_b, double *fit_b,
+                             double *gbest, int improved,
+                             pso_settings_t *settings);
+
+// function type for the different inertia calculation functions
+typedef double (*inertia_fun_t)(int step, pso_settings_t *settings);
+
 
 //==============================================================
 // calulate swarm size based on dimensionality
@@ -200,7 +209,7 @@ void inform_random(int *comm, double *pos_nb,
 //==============================================================
 // create pso settings
 pso_settings_t *pso_settings_new(int dim, double range_lo, double range_hi) {
-    pso_settings_t *settings = malloc(sizeof(pso_settings_t));
+    pso_settings_t *settings = (pso_settings_t *)malloc(sizeof(pso_settings_t));
     if (settings == NULL) { return NULL; }
 
     // set some default values
@@ -208,10 +217,10 @@ pso_settings_t *pso_settings_new(int dim, double range_lo, double range_hi) {
     settings->goal = 1e-5;
 
     // set up the range arrays
-    settings->range_lo = malloc(settings->dim * sizeof(double));
+    settings->range_lo = (double *)malloc(settings->dim * sizeof(double));
     if (settings->range_lo == NULL) { free(settings); return NULL; }
 
-    settings->range_hi = malloc(settings->dim * sizeof(double));
+    settings->range_hi = (double *)malloc(settings->dim * sizeof(double));
     if (settings->range_hi == NULL) { free(settings); free(settings->range_lo); return NULL; }
 
     for (int i=0; i<settings->dim; i++) {
@@ -269,8 +278,8 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
     double a, b; // for matrix initialization
     double rho1, rho2; // random numbers (coefficients)
     double w; // current omega
-    void (*inform_fun)(); // neighborhood update function
-    double (*calc_inertia_fun)(); // inertia weight update function
+    inform_fun_t inform_fun; // neighborhood update function
+    inertia_fun_t calc_inertia_fun; // inertia weight update function
 
 
     // initialize random seed
@@ -357,8 +366,8 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
         }
 
         // update pos_nb matrix (find best of neighborhood for all particles)
-        inform_fun(comm, pos_nb, pos_b, fit_b, solution->gbest,
-                   improved, settings);
+        inform_fun((int *)comm, (double *)pos_nb, (double *)pos_b,
+                   fit_b, solution->gbest, improved, settings);
         // the value of improved was just used; reset it
         improved = 0;
 
