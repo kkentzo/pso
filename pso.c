@@ -33,8 +33,8 @@
 #define RNG_UNIFORM_INT(s) (rand()%s)
 
 // function type for the different inform functions
-typedef void (*inform_fun_t)(int *comm, double *pos_nb,
-                             double *pos_b, double *fit_b,
+typedef void (*inform_fun_t)(int *comm, double **pos_nb,
+                             double **pos_b, double *fit_b,
                              double *gbest, int improved,
                              pso_settings_t *settings);
 
@@ -70,8 +70,8 @@ double calc_inertia_lin_dec(int step, pso_settings_t *settings) {
 //          NEIGHBORHOOD (COMM) MATRIX STRATEGIES
 //==============================================================
 // global neighborhood
-void inform_global(int *comm, double *pos_nb,
-		   double *pos_b, double *fit_b,
+void inform_global(int *comm, double **pos_nb,
+		   double **pos_b, double *fit_b,
 		   double *gbest, int improved,
 		   pso_settings_t *settings)
 {
@@ -80,7 +80,7 @@ void inform_global(int *comm, double *pos_nb,
     // all particles have the same attractor (gbest)
     // copy the contents of gbest to pos_nb
     for (i=0; i<settings->size; i++)
-        memmove((void *)&pos_nb[i*settings->dim], (void *)gbest,
+        memmove((void *)pos_nb[i], (void *)gbest,
                 sizeof(double) * settings->dim);
 
 }
@@ -90,7 +90,7 @@ void inform_global(int *comm, double *pos_nb,
 // general inform function :: according to the connectivity
 // matrix COMM, it copies the best position (from pos_b) of the
 // informers of each particle to the pos_nb matrix
-void inform(int *comm, double *pos_nb, double *pos_b, double *fit_b,
+void inform(int *comm, double **pos_nb, double **pos_b, double *fit_b,
 	    int improved, pso_settings_t * settings)
 {
     int i, j;
@@ -106,8 +106,8 @@ void inform(int *comm, double *pos_nb, double *pos_b, double *fit_b,
                 // found a better informer for j^th particle
                 b_n = i;
         // copy pos_b of b_n^th particle to pos_nb[j]
-        memmove((void *)&pos_nb[j*settings->dim],
-                (void *)&pos_b[b_n*settings->dim],
+        memmove((void *)pos_nb[j],
+                (void *)pos_b[b_n],
                 sizeof(double) * settings->dim);
     }
 }
@@ -153,8 +153,8 @@ void init_comm_ring(int *comm, pso_settings_t * settings) {
 
 
 
-void inform_ring(int *comm, double *pos_nb,
-		 double *pos_b, double *fit_b,
+void inform_ring(int *comm, double **pos_nb,
+		 double **pos_b, double *fit_b,
 		 double *gbest, int improved,
 		 pso_settings_t * settings)
 {
@@ -189,8 +189,8 @@ void init_comm_random(int *comm, pso_settings_t * settings) {
 
 
 
-void inform_random(int *comm, double *pos_nb,
-		   double *pos_b, double *fit_b,
+void inform_random(int *comm, double **pos_nb,
+		   double **pos_b, double *fit_b,
 		   double *gbest, int improved,
 		   pso_settings_t * settings)
 {
@@ -252,23 +252,38 @@ void pso_settings_free(pso_settings_t *settings) {
 }
 
 
+double **pso_matrix_new(int size, int dim) {
+    double **m = (double **)malloc(size * sizeof(double *));
+    for (int i=0; i<size; i++) {
+        m[i] = (double *)malloc(dim * sizeof(double));
+    }
+    return m;
+}
+
+void pso_matrix_free(double **m, int size) {
+    for (int i=0; i<size; i++) {
+        free(m[i]);
+    }
+    free(m);
+}
+
+
 //==============================================================
 //                     PSO ALGORITHM
 //==============================================================
 void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
 	       pso_result_t *solution, pso_settings_t *settings)
 {
-
     // Particles
-    double pos[settings->size][settings->dim]; // position matrix
-    double vel[settings->size][settings->dim]; // velocity matrix
-    double pos_b[settings->size][settings->dim]; // best position matrix
-    double fit[settings->size]; // particle fitness vector
-    double fit_b[settings->size]; // best fitness vector
+    double **pos = pso_matrix_new(settings->size, settings->dim); // position matrix
+    double **vel = pso_matrix_new(settings->size, settings->dim); // velocity matrix
+    double **pos_b = pso_matrix_new(settings->size, settings->dim); // best position matrix
+    double *fit = malloc(settings->size * sizeof(double));
+    double *fit_b = malloc(settings->size * sizeof(double));
     // Swarm
-    double pos_nb[settings->size][settings->dim]; // what is the best informed
+    double **pos_nb = pso_matrix_new(settings->size, settings->dim); // what is best informed
     // position for each particle
-    int comm[settings->size][settings->size]; // communications:who informs who
+    int *comm = (int *)malloc(settings->size * settings->size * sizeof(int));
     // rows : those who inform
     // cols : those who are informed
     int improved; // whether solution->error was improved during
@@ -281,7 +296,6 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
     inform_fun_t inform_fun; // neighborhood update function
     inertia_fun_t calc_inertia_fun; // inertia weight update function
 
-
     // initialize random seed
     srand(time(NULL));
 
@@ -293,11 +307,11 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
             inform_fun = inform_global;
             break;
         case PSO_NHOOD_RING :
-            init_comm_ring((int *)comm, settings);
+            init_comm_ring(comm, settings);
             inform_fun = inform_ring;
             break;
         case PSO_NHOOD_RANDOM :
-            init_comm_random((int *)comm, settings);
+            init_comm_random(comm, settings);
             inform_fun = inform_random;
             break;
         }
@@ -341,7 +355,7 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
             // update best fitness
             solution->error = fit[i];
             // copy particle pos to gbest vector
-            memmove((void *)solution->gbest, (void *)&pos[i],
+            memmove((void *)solution->gbest, (void *)pos[i],
                     sizeof(double) * settings->dim);
         }
 
@@ -366,7 +380,7 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
         }
 
         // update pos_nb matrix (find best of neighborhood for all particles)
-        inform_fun((int *)comm, (double *)pos_nb, (double *)pos_b,
+        inform_fun(comm, (double **)pos_nb, (double **)pos_b,
                    fit_b, solution->gbest, improved, settings);
         // the value of improved was just used; reset it
         improved = 0;
@@ -417,7 +431,7 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
             if (fit[i] < fit_b[i]) {
                 fit_b[i] = fit[i];
                 // copy contents of pos[i] to pos_b[i]
-                memmove((void *)&pos_b[i], (void *)&pos[i],
+                memmove((void *)pos_b[i], (void *)pos[i],
                         sizeof(double) * settings->dim);
             }
             // update gbest??
@@ -426,7 +440,7 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
                 // update best fitness
                 solution->error = fit[i];
                 // copy particle pos to gbest vector
-                memmove((void *)solution->gbest, (void *)&pos[i],
+                memmove((void *)solution->gbest, (void *)pos[i],
                         sizeof(double) * settings->dim);
             }
         }
@@ -435,4 +449,13 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
             printf("Step %d (w=%.2f) :: min err=%.5e\n", step, w, solution->error);
 
     }
+
+    // free resources
+    pso_matrix_free(pos, settings->size);
+    pso_matrix_free(vel, settings->size);
+    pso_matrix_free(pos_b, settings->size);
+    pso_matrix_free(pos_nb, settings->size);
+    free(comm);
+    free(fit);
+    free(fit_b);
 }
