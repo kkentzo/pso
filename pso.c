@@ -278,8 +278,8 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
     double **pos = pso_matrix_new(settings->size, settings->dim); // position matrix
     double **vel = pso_matrix_new(settings->size, settings->dim); // velocity matrix
     double **pos_b = pso_matrix_new(settings->size, settings->dim); // best position matrix
-    double *fit = malloc(settings->size * sizeof(double));
-    double *fit_b = malloc(settings->size * sizeof(double));
+    double *fit = (double *)malloc(settings->size * sizeof(double));
+    double *fit_b = (double *)malloc(settings->size * sizeof(double));
     // Swarm
     double **pos_nb = pso_matrix_new(settings->size, settings->dim); // what is best informed
     // position for each particle
