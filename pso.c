@@ -286,15 +286,16 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
     int *comm = (int *)malloc(settings->size * settings->size * sizeof(int));
     // rows : those who inform
     // cols : those who are informed
-    int improved; // whether solution->error was improved during
+    int improved = 0; // whether solution->error was improved during
     // the last iteration
 
     int i, d, step;
     double a, b; // for matrix initialization
     double rho1, rho2; // random numbers (coefficients)
-    double w; // current omega
-    inform_fun_t inform_fun; // neighborhood update function
-    inertia_fun_t calc_inertia_fun; // inertia weight update function
+    // initialize omega using standard value
+    double w = PSO_INERTIA;
+    inform_fun_t inform_fun = NULL; // neighborhood update function
+    inertia_fun_t calc_inertia_fun = NULL; // inertia weight update function
 
     // initialize random seed
     srand(time(NULL));
@@ -302,17 +303,21 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
     // SELECT APPROPRIATE NHOOD UPDATE FUNCTION
     switch (settings->nhood_strategy)
         {
-        case PSO_NHOOD_GLOBAL :
+        case PSO_NHOOD_GLOBAL:
             // comm matrix not used
             inform_fun = inform_global;
             break;
-        case PSO_NHOOD_RING :
+        case PSO_NHOOD_RING:
             init_comm_ring(comm, settings);
             inform_fun = inform_ring;
             break;
-        case PSO_NHOOD_RANDOM :
+        case PSO_NHOOD_RANDOM:
             init_comm_random(comm, settings);
             inform_fun = inform_random;
+            break;
+        default:
+            // use global as the default
+            inform_fun = inform_global;
             break;
         }
 
@@ -361,16 +366,15 @@ void pso_solve(pso_obj_fun_t obj_fun, void *obj_fun_params,
 
     }
 
-    // initialize omega using standard value
-    w = PSO_INERTIA;
     // RUN ALGORITHM
     for (step=0; step<settings->steps; step++) {
         // update current step
         settings->step = step;
         // update inertia weight
         // do not bother with calling a calc_w_const function
-        if (settings->w_strategy)
+        if (calc_inertia_fun != NULL) {
             w = calc_inertia_fun(step, settings);
+        }
         // check optimization goal
         if (solution->error <= settings->goal) {
             // SOLVED!!
