@@ -1,3 +1,5 @@
 demo
-demo.dSYM
+demopso
+demopso.dSYM
 a.out
+*.o
