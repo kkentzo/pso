@@ -1,8 +1,18 @@
 CC=g++
 CFLAGS=-Wall -g
+DEPS=pso.h
 
-default: all
-all: clean demo
-demo: demo.c pso.c
+SOURCE_FILES=$(shell find . -name '*.c')
+OBJ_FILES=$(SOURCE_FILES:.c=.o) 
+LIB=-lm 
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+	
+demopso: $(OBJ_FILES)
+	$(CC) $^ -o $@ $(LIB)
+
+
+.PHONY: clean
 clean:
-	rm demo
+	rm -f demopso $(OBJ_FILES)
